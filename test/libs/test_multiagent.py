@@ -167,7 +167,7 @@ class TestPettingZoo:
     @pytest.mark.parametrize("task", ["simple_v3"])
     def test_return_state(self, task):
         """Test return_state=True returns state properly from raw env.state().
-        
+
         Regression test for handling PettingZoo state encoding.
         Verifies that the state returned in tensordict matches the raw state
         from env.state(), ensuring proper conversion of any state type.
@@ -180,43 +180,43 @@ class TestPettingZoo:
             return_state=True,
         )
         check_env_specs(env)
-        
+
         # Get raw environment to access .state() directly
         raw_env = env._env
-        
+
         # Reset and check initial state
         td_reset = env.reset()
         assert "state" in td_reset.keys()
-        
+
         # Get raw state from environment
         raw_state = raw_env.state()
-        
+
         # Get encoded state from tensordict
         encoded_state = td_reset["state"]
-        
+
         # Compare size, type, and values
         # Convert raw_state to tensor for comparison
         raw_state_tensor = torch.as_tensor(raw_state, dtype=torch.float32)
-        
+
         # Verify shape matches
         assert encoded_state.shape == raw_state_tensor.shape, (
             f"Shape mismatch: tensordict state has shape {encoded_state.shape}, "
             f"but raw state has shape {raw_state_tensor.shape}"
         )
-        
+
         # Verify dtype
-        assert encoded_state.dtype == torch.float32, (
-            f"Encoded state dtype should be float32, got {encoded_state.dtype}"
-        )
-        assert str(raw_state.dtype) == "float32", (
-            f"Raw state dtype should be float32, got {raw_state.dtype}"
-        )
-        
+        assert (
+            encoded_state.dtype == torch.float32
+        ), f"Encoded state dtype should be float32, got {encoded_state.dtype}"
+        assert (
+            str(raw_state.dtype) == "float32"
+        ), f"Raw state dtype should be float32, got {raw_state.dtype}"
+
         # Verify values match
-        assert torch.allclose(encoded_state, raw_state_tensor), (
-            f"State values mismatch: tensordict state differs from raw state"
-        )
-        
+        assert torch.allclose(
+            encoded_state, raw_state_tensor
+        ), "State values mismatch: tensordict state differs from raw state"
+
         # Verify states are not all zeros
         r = env.rollout(10)
         assert (r["state"] != 0).any()
